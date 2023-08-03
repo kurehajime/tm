@@ -22,9 +22,10 @@ public class TouchManager : MonoBehaviour
             var h = Physics.RaycastAll(ray, 100.0f);
             if (h.Length > 0)
             {
-                if (h[0].collider.tag == "Ball")
+                //タッチしたボールが選択状態でないとき
+                if (h[0].collider.tag == "Ball" && !h[0].collider.GetComponent<BallObject>().isTouch)
                 {
-                    h[0].collider.GetComponent<BallObject>().renderer.material.SetColor("_EmissionColor", new Color(1f, 1f, 0, 0.5f));
+                    h[0].collider.GetComponent<BallObject>().isTouch = true;
                     touchBallList.Add(h[0].collider.gameObject);
                 }
             }
@@ -37,9 +38,10 @@ public class TouchManager : MonoBehaviour
                 var h = Physics.RaycastAll(ray, 100.0f);
                 if (h.Length > 0)
                 {
-                    if (h[0].collider.tag == "Ball")
+                    if (h[0].collider.tag == "Ball"
+                    && !h[0].collider.GetComponent<BallObject>().isTouch)
                     {
-                        h[0].collider.GetComponent<BallObject>().renderer.material.SetColor("_EmissionColor", new Color(1f, 1f, 0, 0.5f));
+                        h[0].collider.GetComponent<BallObject>().isTouch = true;
                         touchBallList.Add(h[0].collider.gameObject);
                     }
                 }
@@ -52,10 +54,17 @@ public class TouchManager : MonoBehaviour
     }
     public void ReleaseObject()
     {
-        //離したらマテリアルを消す
+        var cnt = touchBallList.Count;
+        //離したらマテリアルの色を戻す
         foreach (GameObject go in touchBallList)
         {
-            Destroy(go);
+            //選択状態を解除
+            go.GetComponent<BallObject>().isTouch = false;
+            //3個以上なら消す
+            if (cnt >= 3)
+            {
+                Destroy(go);
+            }
         }
         touchBallList.Clear();
     }
