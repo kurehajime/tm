@@ -6,6 +6,9 @@ public class TouchManager : MonoBehaviour
 {
     [SerializeField]
     List<GameObject> touchBallList;
+
+    [SerializeField]
+    GameObject deleteEffectObj;
     // Start is called before the first frame update
     void Start()
     {
@@ -25,8 +28,16 @@ public class TouchManager : MonoBehaviour
                 //タッチしたボールが選択状態でないとき
                 if (h[0].collider.tag == "Ball" && !h[0].collider.GetComponent<BallObject>().isTouch)
                 {
-                    h[0].collider.GetComponent<BallObject>().isTouch = true;
-                    touchBallList.Add(h[0].collider.gameObject);
+                    if (h[0].collider.GetComponent<BallObject>().color == GameResources.BallColor.bomb)
+                    {
+                        //爆発！
+                        h[0].collider.GetComponent<BallObject>().Explosion(deleteEffectObj);
+                    }
+                    else
+                    {
+                        h[0].collider.GetComponent<BallObject>().isTouch = true;
+                        touchBallList.Add(h[0].collider.gameObject);
+                    }
                 }
             }
         }
@@ -38,12 +49,25 @@ public class TouchManager : MonoBehaviour
                 var h = Physics.RaycastAll(ray, 100.0f);
                 if (h.Length > 0)
                 {
+                    // 「ボールである」かつ「選択したことのあるボールでない」かつ「最初にタッチしたボールの色と同じ」とき実行
                     if (h[0].collider.tag == "Ball"
-                    && !h[0].collider.GetComponent<BallObject>().isTouch)
+                        && !h[0].collider.GetComponent<BallObject>().isTouch
+                        && touchBallList[0].GetComponent<BallObject>().color == h[0].collider.GetComponent<BallObject>().color)
                     {
                         h[0].collider.GetComponent<BallObject>().isTouch = true;
                         touchBallList.Add(h[0].collider.gameObject);
                     }
+                    // 「ボールである」かつ「最初にタッチしたボールの色とは違う」ときReleaseObject関数を実行
+                    else if (h[0].collider.tag == "Ball"
+                        && touchBallList[0].GetComponent<BallObject>().color != h[0].collider.GetComponent<BallObject>().color)
+                    {
+                        ReleaseObject();
+                    }
+                }
+                else
+                {
+                    //ボールをタッチしていない時は消去判定を行う
+                    ReleaseObject();
                 }
             }
         }
@@ -63,6 +87,8 @@ public class TouchManager : MonoBehaviour
             //3個以上なら消す
             if (cnt >= 3)
             {
+                GameObject delObj = Instantiate(deleteEffectObj);
+                delObj.transform.position = go.transform.position;
                 Destroy(go);
             }
         }

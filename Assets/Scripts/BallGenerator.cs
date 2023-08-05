@@ -10,6 +10,7 @@ public class BallGenerator : MonoBehaviour
 
     int cnt = 0;
     const int MAXCNT = 60;
+    int generateCount = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -24,12 +25,21 @@ public class BallGenerator : MonoBehaviour
         cnt %= MAXCNT;
         if (cnt == 0)
         {
+            generateCount++;
+            generateCount %= 10;
             GameObject gameObject = Instantiate(ballObj);
             gameObject.transform.parent = this.transform;
             gameObject.transform.localPosition = Vector3.zero;
-            // カラーをランダムに設定
-            gameObject.GetComponent<BallObject>().color = Enum.GetValues(typeof(GameResources.BallColor)).Cast<GameResources.BallColor>().ToList()[UnityEngine.Random.Range(0, 4)];
-
+            if (generateCount == 0)
+            {
+                // カラーを爆弾用に設定
+                gameObject.GetComponent<BallObject>().color = Enum.GetValues(typeof(GameResources.BallColor)).Cast<GameResources.BallColor>().ToList()[4];
+            }
+            else
+            {
+                // カラーをランダムに設定
+                gameObject.GetComponent<BallObject>().color = Enum.GetValues(typeof(GameResources.BallColor)).Cast<GameResources.BallColor>().ToList()[UnityEngine.Random.Range(0, 4)];
+            }
             // 角度を付けてボールを落とす
             gameObject.GetComponent<Rigidbody>().AddForce(Quaternion.Euler(0, 0, UnityEngine.Random.Range(-60.0f, 60.0f)) * Vector3.down * 10f, ForceMode.Impulse);
         }
