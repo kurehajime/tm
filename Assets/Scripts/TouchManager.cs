@@ -9,6 +9,9 @@ public class TouchManager : MonoBehaviour
 
     [SerializeField]
     GameObject deleteEffectObj;
+
+    [SerializeField]
+    ScoreManager scoreManager;
     // Start is called before the first frame update
     void Start()
     {
@@ -93,5 +96,9 @@ public class TouchManager : MonoBehaviour
             }
         }
         touchBallList.Clear();
+        if (cnt >= 3)
+        {
+            scoreManager.AddScore((int)Mathf.Pow(2, cnt));
+        }
     }
 }
